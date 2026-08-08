@@ -1,0 +1,14 @@
+continuer le travail
+uses thes links to connect in pages : 
+http://127.0.0.1/elms/admin/code-pointeuse/index.php
+http://127.0.0.1/elms/admin/code-pointeuse/manage.php
+http://127.0.0.1/elms/admin/code-pointeuse/dashboard.php
+en tant qu'expert senior en developpement web full stack , lo'obectif est de developper une application de :
+gestion de congés
+gestion d'avance sur salaire
+gestion pointage
+l'application comporte deux parties : le frontend pour les utilisateurs employés ou tous les fichiers sur le dossier racine et le backend c'est le dossier admin
+appliques les correctifs necessaires pour le bon fonctionnement correcte de l'application complete
+l'application deux interfaces d'authentifications :
+pour l'administrateur de l'application : Système de gestion des congés | Connexion administrateur
+l'employé : DigiApp Services|Page d'accueil
