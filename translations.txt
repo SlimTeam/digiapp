@@ -1,0 +1,41 @@
+Root pages translations:
+- DigiApp Services | Employee Leave Management System -> Gestion des employés
+- Employe Login -> Connexion employé
+- Emp Password Recovery -> Récupération mot de passe employé
+- Admin Login -> Connexion administrateur
+- Welcome to Employee Leave Management System -> Bienvenue dans le système de gestion des congés
+- Employee Login -> Connexion employé
+- Email Id -> Email
+- Sign in -> Se connecter
+- Invalid Details -> Identifiants invalides
+- Your account is Inactive. Please contact admin -> Votre compte est inactif. Veuillez contacter l'administrateur
+
+Shared includes translations:
+- My Profiles -> Mon profil
+- Chnage Password -> Changer le mot de passe
+- Leaves -> Congés
+- Apply Leave -> Demander un congé
+- Leave History -> Historique des congés
+- Sign Out -> Déconnexion
+
+Admin pages translations:
+- Employee leave management system | Admin -> Système de gestion des congés | Admin
+- Sign In -> Se connecter
+- Add Department -> Ajouter un département
+- Department Created Successfully -> Département créé avec succès
+- Employee record added Successfully -> Employé ajouté avec succès
+- Leave type added Successfully -> Type de congé ajouté avec succès
+- Update Department -> Mettre à jour le département
+- Update Employee -> Mettre à jour l'employé
+- Update leave type -> Mettre à jour le type de congé
+- Leave Details -> Détails du congé
+- Leave History -> Historique des congés
+- Manage Departments -> Gérer les départements
+- Manage Employees -> Gérer les employés
+- Manage Leave Type -> Gérer les types de congés
+- Pending Leaves -> Congés en attente
+- Approved Leaves -> Congés approuvés
+- Not Approved Leaves -> Congés non approuvés
+- Sign Out -> Déconnexion
+
+Note: Il faut aussi corriger les méta descriptions/keywords si nécessaire et vérifier les autres pages admin et root pour les libellés restants.
