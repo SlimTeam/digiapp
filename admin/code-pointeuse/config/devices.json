@@ -1,0 +1,26 @@
+{
+    "default_port": 4370,
+    "devices": [
+        {
+            "id": 1,
+            "name": "Pointeuse Atelier",
+            "ip": "192.168.100.140",
+            "port": 4370,
+            "department": "Atelier"
+        },
+        {
+            "id": 2,
+            "name": "Pointeuse Chantier",
+            "ip": "192.168.100.120",
+            "port": 4370,
+            "department": "Chantier"
+        },
+        {
+            "id": 3,
+            "name": "Marmo",
+            "ip": "192.168.100.100",
+            "port": 4370,
+            "department": "Général"
+        }
+    ]
+}

@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Pointeuses - Quartz Gres</title>
+    <link href="../style.css" rel="stylesheet" type="text/css"/>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .form-section {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .form-section h2 {
+            margin-top: 0;
+            color: #495057;
+            font-size: 1.2em;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 0.85em;
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 5px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 8px 10px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 0.95em;
+            box-sizing: border-box;
+        }
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .table-actions {
+            display: flex;
+            gap: 5px;
+        }
+        .device-list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .device-list-header h2 {
+            margin: 0;
+            color: #495057;
+        }
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 12px 20px;
+            border-radius: 6px;
+            color: white;
+            font-weight: 500;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        .toast.show {
+            opacity: 1;
+        }
+        .toast-success {
+            background: #28a745;
+        }
+        .toast-error {
+            background: #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <?php include('../includes/header.php'); ?>
+        <?php include('../includes/sidebar.php'); ?>
+        <main class="content">
+            <div class="container">
+                <header class="header">
+                    <div>
+                        <h1>⚙️ Gestion des Pointeuses</h1>
+                        <p class="subtitle">Configurer les pointeuses ZKTeco pour la synchronisation</p>
+                    </div>
+                    <a href="index.php" class="btn btn-secondary">← Retour au tableau de bord</a>
+                </header>
+
+                <!-- Formulaire d'ajout / modification -->
+                <div class="form-section">
+                    <h2 id="form-title">Ajouter une pointeuse</h2>
+                    <form id="device-form">
+                        <input type="hidden" id="device-id">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="device-name">Nom *</label>
+                                <input type="text" id="device-name" placeholder="Ex: Pointeuse Atelier" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="device-ip">Adresse IP *</label>
+                                <input type="text" id="device-ip" placeholder="Ex: 192.168.100.140" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="device-port">Port UDP</label>
+                                <input type="number" id="device-port" value="4370" min="1" max="65535">
+                            </div>
+                            <div class="form-group">
+                                <label for="device-department">Département</label>
+                                <input type="text" id="device-department" placeholder="Ex: Atelier" value="Général">
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn-success" id="btn-save">💾 Enregistrer</button>
+                            <button type="button" class="btn-secondary" id="btn-cancel">✕ Annuler</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Liste des pointeuses configurées -->
+                <div class="form-section">
+                    <div class="device-list-header">
+                        <h2>Pointeuses configurées</h2>
+                        <span id="device-count" style="color:#6c757d;">0 pointeuse(s)</span>
+                    </div>
+                    <div id="device-list" style="overflow-x:auto;">
+                        <table style="width:100%; border-collapse:collapse;">
+                            <thead>
+                                <tr>
+                                    <th style="text-align:left; padding:8px; border-bottom:2px solid #dee2e6;">Nom</th>
+                                    <th style="text-align:left; padding:8px; border-bottom:2px solid #dee2e6;">Adresse IP</th>
+                                    <th style="text-align:left; padding:8px; border-bottom:2px solid #dee2e6;">Port</th>
+                                    <th style="text-align:left; padding:8px; border-bottom:2px solid #dee2e6;">Département</th>
+                                    <th style="text-align:center; padding:8px; border-bottom:2px solid #dee2e6;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="device-table-body">
+                                <tr><td colspan="5" class="loading">Chargement...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+        let editingId = null;
+
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast show ' + (isError ? 'toast-error' : 'toast-success');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        async function loadDevices() {
+            try {
+                const response = await fetch('api-devices.php');
+                const result = await response.json();
+
+                if (result.status === 'error') {
+                    showToast(result.message, true);
+                    return;
+                }
+
+                const devices = result.data || [];
+                renderDeviceList(devices);
+                document.getElementById('device-count').textContent =
+                    devices.length + ' pointeuse' + (devices.length > 1 ? 's' : '');
+            } catch (error) {
+                showToast('Erreur lors du chargement des pointeuses.', true);
+            }
+        }
+
+        function renderDeviceList(devices) {
+            const tbody = document.getElementById('device-table-body');
+
+            if (devices.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="loading">Aucune pointeuse configurée.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = devices.map(device => `
+                <tr>
+                    <td>${device.name || ''}</td>
+                    <td>${device.ip || ''}</td>
+                    <td>${device.port || 4370}</td>
+                    <td>${device.department || 'Général'}</td>
+                        <td class="table-actions">
+                            <button class="btn btn-warning btn-sm" onclick="editDevice(${device.id})">✏️ Modifier</button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteDevice(${device.id})">🗑️ Supprimer</button>
+                        </td>
+                </tr>
+            `).join('');
+        }
+
+        function editDevice(id) {
+            fetch(`api-devices.php?id=${id}`)
+                .then(r => r.json())
+                .then(result => {
+                    if (result.status === 'error') {
+                        showToast(result.message, true);
+                        return;
+                    }
+                    const device = result.data;
+                    editingId = device.id;
+                    document.getElementById('device-id').value = device.id;
+                    document.getElementById('device-name').value = device.name || '';
+                    document.getElementById('device-ip').value = device.ip || '';
+                    document.getElementById('device-port').value = device.port || 4370;
+                    document.getElementById('device-department').value = device.department || 'Général';
+                    document.getElementById('form-title').textContent = 'Modifier la pointeuse';
+                    document.getElementById('btn-save').textContent = '💾 Enregistrer les modifications';
+                })
+                .catch(() => showToast('Erreur lors du chargement de la pointeuse.', true));
+        }
+
+        async function deleteDevice(id) {
+            if (!confirm('Voulez-vous vraiment supprimer cette pointeuse ?')) {
+                return;
+            }
+            try {
+                const formData = new FormData();
+                formData.append('action', 'delete');
+                formData.append('id', id);
+
+                const response = await fetch('api-devices.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+
+                if (result.status === 'error') {
+                    showToast(result.message, true);
+                } else {
+                    showToast(result.message);
+                    editingId = null;
+                    resetForm();
+                    loadDevices();
+                }
+            } catch (error) {
+                showToast('Erreur lors de la suppression.', true);
+            }
+        }
+
+        function resetForm() {
+            document.getElementById('device-form').reset();
+            document.getElementById('device-id').value = '';
+            document.getElementById('device-port').value = 4370;
+            document.getElementById('device-department').value = 'Général';
+            document.getElementById('form-title').textContent = 'Ajouter une pointeuse';
+            document.getElementById('btn-save').textContent = '💾 Enregistrer';
+        }
+
+        document.getElementById('btn-cancel').addEventListener('click', () => {
+            editingId = null;
+            resetForm();
+        });
+
+        document.getElementById('device-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData();
+            formData.append('name', document.getElementById('device-name').value.trim());
+            formData.append('ip', document.getElementById('device-ip').value.trim());
+            formData.append('port', document.getElementById('device-port').value);
+            formData.append('department', document.getElementById('device-department').value.trim());
+
+            if (editingId !== null) {
+                formData.append('action', 'edit');
+                formData.append('id', editingId);
+            } else {
+                formData.append('action', 'add');
+            }
+
+            try {
+                const response = await fetch('api-devices.php', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+
+                if (result.status === 'error') {
+                    showToast(result.message, true);
+                } else {
+                    showToast(result.message);
+                    editingId = null;
+                    resetForm();
+                    loadDevices();
+                }
+            } catch (error) {
+                showToast('Erreur lors de l\'enregistrement.', true);
+            }
+        });
+
+        loadDevices();
+    </script>
+</body>
+</html>

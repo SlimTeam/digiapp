@@ -1,0 +1,85 @@
+<?php
+require_once __DIR__ . '/config.php';
+?>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des Pointages ZKTeco - Quartz Gres</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="container">
+        <header class="header">
+            <div>
+                <h1>⏱️ Pointages ZKTeco</h1>
+                <p class="subtitle">Entreprise : <strong>QUARTZ GRES</strong></p>
+            </div>
+            <div class="header-actions">
+                <button id="btn-sync" class="btn btn-primary">🔄 Synchroniser</button>
+                <button id="btn-export" class="btn btn-success">📥 Exporter</button>
+                <button id="btn-print" class="btn btn-info">🖨️ Imprimer</button>
+                <a href="manage.php" class="btn btn-warning">⚙️ Paramètres</a>
+                <a href="dashboard.php" class="btn btn-primary">📊 Dashboard</a>
+            </div>
+        </header>
+
+        <!-- Cartes d'indicateurs (KPIs) -->
+        <div class="kpi-grid">
+            <div class="card">
+                <h3>Total Pointages</h3>
+                <p id="kpi-total" class="kpi-number">0</p>
+            </div>
+            <div class="card">
+                <h3>Dernière Sync</h3>
+                <p id="kpi-sync" class="kpi-text">--:--</p>
+            </div>
+        </div>
+
+        <!-- État des pointeuses -->
+        <div id="device-status" class="device-status-card">
+            Chargement de l'état des pointeuses...
+        </div>
+
+        <!-- Zone de Filtres -->
+        <div class="filters-card">
+            <input type="text" id="search-name" placeholder="Rechercher par nom ou prénom...">
+            <div class="date-range">
+                <span class="date-label">Du</span>
+                <input type="date" id="filter-date-from">
+                <span class="date-label">Au</span>
+                <input type="date" id="filter-date-to">
+            </div>
+            <select id="filter-type">
+                <option value="">Tous les types</option>
+                <option value="Entrée">Entrée</option>
+                <option value="Sortie">Sortie</option>
+            </select>
+        </div>
+
+        <!-- Compteur de lignes -->
+        <div id="row-count" class="row-count"></div>
+
+        <!-- Tableau des Pointages -->
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Employé (Nom & Prénom)</th>
+                        <th>Département</th>
+                        <th>Horodatage</th>
+                        <th>Type</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body">
+                    <tr><td colspan="4" class="loading">Chargement des pointages...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
